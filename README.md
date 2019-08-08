@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/grtlr/uapca.svg?branch=master)](https://travis-ci.com/grtlr/uapca)
+[[![Build Status](https://travis-ci.com/grtlr/uapca.svg?token=M7qsxhpGdq7xqyuVznBq&branch=master)](https://travis-ci.com/grtlr/uapca)
 
 ## Development
 
