@@ -1,0 +1,48 @@
+{
+    "name": "uapca",
+    "version": "0.1.0",
+    "description": "Uncertainty-aware principal component analysis.",
+    "author": "Jochen Görtler",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/grtlr/uapca.git"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "private": "true",
+    "license": "MIT",
+    "main": "dist/index.js",
+    "module": "dist/index.es.js",
+    "types": "dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "rollup -c",
+        "dev": "rollup -c -w",
+        "lint": "eslint --config .eslintrc.json --ext .js,.html,.ts src tests",
+        "lint-fix": "eslint --fix --config .eslintrc.json --ext .js,.html,.ts src tests",
+        "test": "ts-mocha -p tsconfig.test.json tests/**/*.ts"
+    },
+    "devDependencies": {
+        "@types/chai": "^4.1.7",
+        "@types/expect": "^1.20.4",
+        "@types/mocha": "^5.2.7",
+        "@typescript-eslint/eslint-plugin": "^1.13.0",
+        "@typescript-eslint/parser": "^1.13.0",
+        "chai": "^4.2.0",
+        "eslint": "^6.0.0",
+        "mocha": "^6.2.0",
+        "npm-run-all": "^4.1.5",
+        "rollup": "^1.16.2",
+        "rollup-plugin-eslint": "^7.0.0",
+        "rollup-plugin-terser": "^5.0.0",
+        "rollup-plugin-typescript2": "^0.21.2",
+        "ts-mocha": "^6.0.0",
+        "typescript": "^3.5.2"
+    },
+    "dependencies": {
+        "ml-matrix": "^6.2.0"
+    }
+}

@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "./dist",
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "outDir": "./dist",
+    "target": "es6"
+  },
+  "include": [
+    "src/**/*",
+    "tests/**/*"
+  ],
+  "exclude": ["node_modules"]
+}
