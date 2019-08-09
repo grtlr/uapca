@@ -101,6 +101,10 @@ export class UaPCA {
 
         const pairs: Array<[number, Array<number>]> = evals.map((e, i) => [e, evecs[i]]);
         const comps = pairs.sort((a, b) => b[0] - a[0]);
-        return new PrincipalComponents(comps.map(d => d[0]), comps.map(v => v[1]));
+
+        return new PrincipalComponents(
+            comps.map(d => d[0]),
+            new Matrix(comps.map(v => v[1]))i
+        );
     }
 }
