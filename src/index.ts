@@ -104,7 +104,7 @@ export class UaPCA {
 
         return new PrincipalComponents(
             comps.map(d => d[0]),
-            new Matrix(comps.map(v => v[1]))i
+            new Matrix(comps.map(v => v[1])),
         );
     }
 }
