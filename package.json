@@ -1,6 +1,6 @@
 {
     "name": "uapca",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Uncertainty-aware principal component analysis.",
     "author": "Jochen Görtler",
     "repository": {
@@ -10,7 +10,6 @@
     "publishConfig": {
         "access": "public"
     },
-    "private": "true",
     "license": "MIT",
     "main": "dist/index.js",
     "module": "dist/index.es.js",
