@@ -17,12 +17,10 @@ script:
 
 deploy:
 - provider: npm
-  email: jochen.goertler@uni-konstanz.de
+  email: web@goertler.email
   skip_cleanup: true
-  api_key:
-    secure: wVcjS9J6nKQMmfS5ZBCdTOPdVq6PRFx9fqcsZAulsLT4RMQ67qOlGrPZxxVNjAjcKMPrdXNIN3VgB5Q+y3Ynhp4NTdCIgkS4gjDzwzm1i5cRTleNd+4kOY1JheelZ3lnmyVsBOu1y/+vwLGwDkpGo9MuUy01WH4EC8QH4x0nuYowXD/ZEGltgeZpv+MZ0nk72ErW7NU2SqvW5pvqSsQFGqcwvFLjWGHB/WnlpWooeBY+iv3fwBQxaFiuWm8iFDmLg0FlhlqSGljT7Pbjt8mAErpd9VAOBIvJmdJTf5cR5oFXw5GzOnul5sRaJ+aokILb5hQtOzCWkrPXVfcx+OS8u5BFPcwW1jQQOQA2sTRykOV5AxJGOHEm3x3uBx0AZK2aH8cZr3kEjhQx4P9jAjTPlmlXmMAyFCk3aAg9fYEeTYP+lGGc96jYDYPaCPrXFzCjLQJwrAdnWdeIXnyRFmbS7JAFdmUBw84kdDxpILZpOYn4i4zcgX4RwYt2Zr8o3Y2fHa0YEvrP6FkmAkV92Q/fWqRTypjqxDTDtCGMohdVFHyNgqCS5H8Wwa7204oyEGT+vPeXykjioE18L6FnXFYlqc0WiHDq2/mJPyvhLXb3eBPUryzJY3enGMSfd9vk1QT7s+/xcVdWjA4Rfn7o0tE4tUDj9+NQlGJG+mBMdq9SkWk=
+  api_key: $NPM_TOKEN
   on:
     tags: true
-    repo: grtlr/uapca
     branch: master
 
