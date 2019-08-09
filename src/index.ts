@@ -1,4 +1,4 @@
-import { Matrix, EigenvalueDecomposition } from 'ml-matrix';
+import { EigenvalueDecomposition, Matrix } from 'ml-matrix';
 
 export interface Distribution {
     mean(): Matrix;
@@ -7,7 +7,8 @@ export interface Distribution {
 
 export interface Projection {
     /**
-     * Projects a distribution onto a lower dimensional subspace defined by the dimensions of the `projectionMatrix`.
+     * Projects a distribution onto a lower dimensional subspace
+     * defined by the dimensions of the `projectionMatrix`.
      * @param {Matrix} projectionMatrix - Defined as row matrix.
      */
     project(projectionMatrix: Matrix): Distribution;
@@ -86,11 +87,11 @@ function centering(distributions: Array<Distribution>): Matrix {
 }
 
 export class UaPCA {
-
     public static fit(distributions: Array<Distribution>): PrincipalComponents {
         const center: Matrix = centering(distributions);
         const empericalCov: Matrix = arithmeticMean(distributions.map(d => {
-            return outerProduct(d.mean()).add(d.covariance()).sub(center);
+            return outerProduct(d.mean()).add(d.covariance())
+                .sub(center);
         }));
 
         // Compute components and sort by eigenvalues
@@ -99,7 +100,7 @@ export class UaPCA {
         const evecs = e.eigenvectorMatrix.transpose().to2DArray();
 
         const pairs: Array<[number, Array<number>]> = evals.map((e, i) => [e, evecs[i]]);
-        const comps = pairs.sort((a, b) => b[0] - a[0])
+        const comps = pairs.sort((a, b) => b[0] - a[0]);
         return new PrincipalComponents(comps.map(d => d[0]), comps.map(v => v[1]));
     }
 }
