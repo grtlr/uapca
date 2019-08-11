@@ -8,9 +8,9 @@
         "url": "git+https://github.com/grtlr/uapca.git"
     },
     "license": "MIT",
-    "main": "dist/index.js",
-    "module": "dist/index.es.js",
-    "types": "dist/src/index.d.ts",
+    "main": "dist/uapca.js",
+    "module": "dist/uapca.es.js",
+    "types": "dist/uapca.d.ts",
     "files": [
         "dist"
     ],
