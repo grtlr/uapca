@@ -10,9 +10,11 @@
     "license": "MIT",
     "main": "dist/uapca.js",
     "module": "dist/uapca.es.js",
-    "types": "dist/uapca.d.ts",
+    "types": "dist/src/index.d.ts",
     "files": [
-        "dist"
+    	"dist/uapca.js",
+    	"dist/uapca.es.js",
+    	"dist/src/index.d.ts",
     ],
     "scripts": {
         "build": "rollup -c",
