@@ -14,7 +14,7 @@
     "files": [
     	"dist/uapca.js",
     	"dist/uapca.es.js",
-    	"dist/src/index.d.ts",
+    	"dist/src/index.d.ts"
     ],
     "scripts": {
         "build": "rollup -c",
