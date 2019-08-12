@@ -1,5 +1,5 @@
+import * as d3 from 'd3-random';
 import { EigenvalueDecomposition, IRandomOptions, Matrix } from 'ml-matrix';
-import { normal } from 'random';
 
 export interface Distribution {
     mean(): Matrix;
@@ -45,7 +45,7 @@ export class MultivariateNormal implements Distribution, Projection {
 class RandomStdNormal implements IRandomOptions {
     public random: () => number;
     public constructor() {
-        this.random = normal(0, 1);
+        this.random = d3.randomNormal();
     }
 }
 
