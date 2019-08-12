@@ -1,5 +1,5 @@
-import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
+import resolve from 'rollup-plugin-node-resolve';
 import { eslint } from 'rollup-plugin-eslint';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2'
@@ -28,9 +28,7 @@ export default [
                 browser: true
 
             }),
-            commonjs({
-                namedExports: { 'node_modules/random/index.js': ['normal'] }
-            }),
+            commonjs(),
             typescript(),
         ],
     },
@@ -52,10 +50,8 @@ export default [
                 browser: true
 
             }),
-            commonjs({
-                namedExports: { 'node_modules/random/index.js': ['normal'] }
-            }),
             typescript(),
+            commonjs(),
             terser({output: {preamble: copyright}})
         ],
     }
