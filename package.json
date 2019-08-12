@@ -13,7 +13,9 @@
     "types": "dist/src/index.d.ts",
     "files": [
         "dist/uapca.js",
+        "dist/uapca.js.map",
         "dist/uapca.es.js",
+        "dist/uapca.es.js.map",
         "dist/src/index.d.ts"
     ],
     "scripts": {
