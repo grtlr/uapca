@@ -15,6 +15,9 @@ script:
 - yarn run build
 - yarn run test
 
+before_deploy:
+- yarn run publish
+
 deploy:
 - provider: npm
   email: web@goertler.email

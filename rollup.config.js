@@ -1,34 +1,62 @@
+import resolve from 'rollup-plugin-node-resolve';
+import commonjs from 'rollup-plugin-commonjs';
 import { eslint } from 'rollup-plugin-eslint';
 import { terser } from 'rollup-plugin-terser';
 import typescript from 'rollup-plugin-typescript2'
 
 import pkg from './package.json'
 
-const production = !process.env.ROLLUP_WATCH;
+const copyright = `// ${pkg.name} v${pkg.version} Copyright ${(new Date).getFullYear()} ${pkg.author.name}`;
 
-export default {
-    input: 'src/index.ts',
-    output: [
-        {
-            file: pkg.main,
-            format: 'cjs',
-            sourcemap: true,
-        },
-        {
-            file: pkg.module,
-            format: 'es',
-            sourcemap: true,
-        },
-    ],
-    external: [
-        ...Object.keys(pkg.dependencies || {}),
-        ...Object.keys(pkg.peerDependencies || {}),
-    ],
-    plugins: [
-        eslint({
-            throwOnWarning: production
-        }),
-	typescript(),
-	production && terser()
-    ],
-}
+export default [
+    {
+        input: 'src/index.ts',
+        output: [
+            {
+                banner: copyright,
+                name: pkg.name,
+                file: 'dist/uapca.js',
+                format: 'umd',
+            },
+        ],
+        plugins: [
+            eslint({
+                throwOnWarning: true
+            }),
+            resolve({
+                preferBuiltins: true,
+                browser: true
+
+            }),
+            commonjs({
+                namedExports: { 'node_modules/random/index.js': ['normal'] }
+            }),
+            typescript(),
+        ],
+    },
+    {
+        input: 'src/index.ts',
+        output: [
+            {
+                name: pkg.name,
+                file: 'dist/uapca.min.js',
+                format: 'umd',
+            },
+        ],
+        plugins: [
+            eslint({
+                throwOnWarning: true
+            }),
+            resolve({
+                preferBuiltins: true,
+                browser: true
+
+            }),
+            commonjs({
+                namedExports: { 'node_modules/random/index.js': ['normal'] }
+            }),
+            typescript(),
+            terser({output: {preamble: copyright}})
+        ],
+    }
+]
