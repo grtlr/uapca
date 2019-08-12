@@ -1,4 +1,5 @@
-import { EigenvalueDecomposition, Matrix } from 'ml-matrix';
+import { EigenvalueDecomposition, IRandomOptions, Matrix } from 'ml-matrix';
+import { normal } from 'random';
 
 export interface Distribution {
     mean(): Matrix;
@@ -41,6 +42,38 @@ export class MultivariateNormal implements Distribution, Projection {
     }
 }
 
+class RandomStdNormal implements IRandomOptions {
+    public random: () => number;
+    public constructor() {
+        this.random = normal(0, 1);
+    }
+}
+
+export class Sampler {
+    private mean: Matrix;
+    private A: Matrix;
+    private gen: RandomStdNormal;
+    public constructor(distribution: MultivariateNormal) {
+        this.mean = distribution.mean().transpose();
+        const eigen = new EigenvalueDecomposition(distribution.covariance());
+        const q = eigen.eigenvectorMatrix.transpose();
+        const lambda = Matrix.diag(eigen.realEigenvalues.map(x => Math.sqrt(x)));
+        this.A = lambda.mmul(q);
+        this.gen = new RandomStdNormal();
+    }
+
+    public sampleN(count: number): Array<Array<number>> {
+        // Z is transposed because A is also transposed
+        const Z = Matrix.random(count, this.dims(), this.gen);
+        const res = Z.mmul(this.A).addRowVector(this.mean);
+        return res.to2DArray();
+    }
+
+    private dims(): number {
+        return this.mean.columns;
+    }
+}
+
 export class Point implements Distribution, Projection {
     private data: Matrix;
     public constructor(data: Array<number>) {
@@ -73,7 +106,7 @@ function outerProduct(x: Matrix): Matrix {
     return x.mmul(x.transpose());
 }
 
-function arithmeticMean(matrices: Array<Matrix>): Matrix {
+export function arithmeticMean(matrices: Array<Matrix>): Matrix {
     const nrows = matrices[0].rows;
     const ncols = matrices[0].columns;
     const N = matrices.length;
