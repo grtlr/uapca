@@ -143,7 +143,7 @@ export class UaPCA {
 
     public static fitTransform(distributions: Array<Distribution>, components: number, scale: number = 1.0): Array<Disitribution> {
         const pcs = this.fit(distributions, scale);
-        const projMat = new Matrix(pcs.vectors.to2DArray().slice(0,2));
+        const projMat = new Matrix(pcs.vectors.to2DArray().slice(0, components));
         return distributions.map(d => d.project(projMat));
     }
 }
