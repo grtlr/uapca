@@ -154,3 +154,5 @@ export class UaPCA {
         return distributions.map(d => d.project(projMat));
     }
 }
+
+export { Matrix };
