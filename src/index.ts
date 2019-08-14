@@ -145,10 +145,10 @@ export class UaPCA {
     }
 
     public static fitTransform(
-        distributions: Array<Distribution>,
+        distributions: Array<Distribution & Projection>,
         components: number,
         scale: number = 1.0,
-    ): Array<Disitribution> {
+    ): Array<Distribution> {
         const pcs = this.fit(distributions, scale);
         const projMat = new Matrix(pcs.vectors.to2DArray().slice(0, components));
         return distributions.map(d => d.project(projMat));
