@@ -18,6 +18,14 @@ describe('Distribution', () => {
     });
 });
 
+describe('MultivariateNormal', () => {
+    it('should allow both constructor types', () => {
+        const a = new MultivariateNormal([0, 0], [[1, 0], [0, 1]]);
+        const b = new MultivariateNormal(Matrix.columnVector([0, 0]), Matrix.diagonal([1, 1]));
+        expect(a).to.eql(b);
+    });
+});
+
 describe('Projection', () => {
     it('Points should be projected correctly', () => {
         const v1 = new Point([1, 1, 1]);
@@ -138,7 +146,7 @@ describe('UaPCA', () => {
         ];
         const cov = new Matrix([[1, 0.5, 0.5], [0.5, 1, 0.5], [0.5, 0.5, 1]]);
         const dists = means.map(m => new MultivariateNormal(Matrix.columnVector(m), cov));
-        const transformed = UaPCA.fitTransform(dists, 2);
+        const transformed = UaPCA.fit(dists).transform(dists, 2);
 
         expect(transformed.length).to.be.eql(4);
         expect(transformed[0].mean().rows).to.be.eql(2);

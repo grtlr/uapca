@@ -18,9 +18,9 @@ export interface Projection {
 export class MultivariateNormal implements Distribution, Projection {
     private meanVec: Matrix;
     private covMat: Matrix;
-    public constructor(mean: Matrix, covMat: Matrix) {
-        this.meanVec = mean;
-        this.covMat = covMat;
+    public constructor(meanVec: Array<number> | Matrix, covMat: Array<Array<number>> | Matrix) {
+        this.meanVec = (meanVec instanceof Matrix) ? meanVec : Matrix.columnVector(meanVec);
+        this.covMat = (covMat instanceof Matrix) ? covMat : new Matrix(covMat);
     }
 
     public static standard(nDims: number): MultivariateNormal {
@@ -93,15 +93,6 @@ export class Point implements Distribution, Projection {
     }
 }
 
-export class PrincipalComponents {
-    public readonly lengths: Array<number>;
-    public readonly vectors: Matrix; // row matrix!
-    public constructor(lengths: Array<number>, vectors: Matrix) {
-        this.lengths = lengths;
-        this.vectors = vectors;
-    }
-}
-
 function outerProduct(x: Matrix): Matrix {
     return x.mmul(x.transpose());
 }
@@ -120,10 +111,18 @@ function centering(distributions: Array<Distribution>): Matrix {
 }
 
 export class UaPCA {
+    public readonly lengths: Array<number>;
+    public readonly vectors: Matrix; // row matrix!
+
+    private constructor(lengths: Array<number>, vectors: Matrix) {
+        this.lengths = lengths;
+        this.vectors = vectors;
+    }
+
     public static fit(
         distributions: Array<Distribution>,
         scale: number = 1.0,
-    ): PrincipalComponents {
+    ): UaPCA {
         const center: Matrix = centering(distributions);
         const empericalCov: Matrix = arithmeticMean(distributions.map(d => {
             return outerProduct(d.mean()).add(Matrix.mul(d.covariance(), scale * scale))
@@ -138,19 +137,14 @@ export class UaPCA {
         const pairs: Array<[number, Array<number>]> = evals.map((e, i) => [e, evecs[i]]);
         const comps = pairs.sort((a, b) => b[0] - a[0]);
 
-        return new PrincipalComponents(
-            comps.map(d => d[0]),
-            new Matrix(comps.map(v => v[1])),
-        );
+        return new UaPCA(comps.map(d => d[0]), new Matrix(comps.map(v => v[1])));
     }
 
-    public static fitTransform(
+    public transform(
         distributions: Array<Distribution & Projection>,
         components: number,
-        scale: number = 1.0,
     ): Array<Distribution> {
-        const pcs = this.fit(distributions, scale);
-        const projMat = new Matrix(pcs.vectors.to2DArray().slice(0, components));
+        const projMat = new Matrix(this.vectors.to2DArray().slice(0, components));
         return distributions.map(d => d.project(projMat));
     }
 }
