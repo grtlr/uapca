@@ -61,7 +61,7 @@ describe('Projection', () => {
     });
 });
 
-describe('UaPCA fitting', () => {
+describe('UaPCA', () => {
     it('should return the same principal components as regular PCA', () => {
         const means = [
             [2, 0, 0],
@@ -103,6 +103,45 @@ describe('UaPCA fitting', () => {
         expect(pca1.vectors.get(1, 0)).to.be.closeTo(pca2.vectors.get(1, 0), 0.1);
         expect(pca1.vectors.get(0, 1)).to.be.closeTo(pca2.vectors.get(0, 1), 0.1);
         expect(pca1.vectors.get(1, 1)).to.be.closeTo(pca2.vectors.get(1, 1), 0.1);
+    });
+
+    it('should yield same result as regular PCA when scaling with 0', () => {
+        const mean = Matrix.columnVector([42, 0]);
+        const cov = new Matrix([[1, 0.5], [0.5, 1]]);
+        const gauss = new MultivariateNormal(mean, cov);
+        const means = (new Sampler(gauss)).sampleN(3);
+
+        const dists = means.map(m => new MultivariateNormal(Matrix.columnVector(m), cov));
+        const pca1 = UaPCA.fit(dists, 0);
+
+        const points = means.map(m => new Point(m));
+        const pca2 = UaPCA.fit(points);
+
+        expect(pca1.vectors.rows).to.be.eql(2);
+        expect(pca1.vectors.columns).to.be.eql(2);
+
+        expect(pca1.lengths[0]).to.be.closeTo(pca2.lengths[0], 0.1);
+        expect(pca1.lengths[1]).to.be.closeTo(pca2.lengths[1], 0.1);
+
+        expect(pca1.vectors.get(0, 0)).to.be.closeTo(pca2.vectors.get(0, 0), 0.1);
+        expect(pca1.vectors.get(1, 0)).to.be.closeTo(pca2.vectors.get(1, 0), 0.1);
+        expect(pca1.vectors.get(0, 1)).to.be.closeTo(pca2.vectors.get(0, 1), 0.1);
+        expect(pca1.vectors.get(1, 1)).to.be.closeTo(pca2.vectors.get(1, 1), 0.1);
+    });
+
+    it('fitTransform should yield the correct dimensions', () => {
+        const means = [
+            [2, 0, 0],
+            [-2, 0, 0],
+            [0, 1, 0],
+            [0, -1, 0],
+        ];
+        const cov = new Matrix([[1, 0.5, 0.5], [0.5, 1, 0.5], [0.5, 0.5, 1]]);
+        const dists = means.map(m => new MultivariateNormal(Matrix.columnVector(m), cov));
+        const transformed = UaPCA.fitTransform(dists, 2);
+
+        expect(transformed.length).to.be.eql(4);
+        expect(transformed[0].mean().rows).to.be.eql(2);
     });
 });
 

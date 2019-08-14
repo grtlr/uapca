@@ -120,10 +120,13 @@ function centering(distributions: Array<Distribution>): Matrix {
 }
 
 export class UaPCA {
-    public static fit(distributions: Array<Distribution>): PrincipalComponents {
+    public static fit(
+        distributions: Array<Distribution>,
+        scale: number = 1.0,
+    ): PrincipalComponents {
         const center: Matrix = centering(distributions);
         const empericalCov: Matrix = arithmeticMean(distributions.map(d => {
-            return outerProduct(d.mean()).add(d.covariance())
+            return outerProduct(d.mean()).add(Matrix.mul(d.covariance(), scale * scale))
                 .sub(center);
         }));
 
@@ -139,5 +142,15 @@ export class UaPCA {
             comps.map(d => d[0]),
             new Matrix(comps.map(v => v[1])),
         );
+    }
+
+    public static fitTransform(
+        distributions: Array<Distribution & Projection>,
+        components: number,
+        scale: number = 1.0,
+    ): Array<Distribution> {
+        const pcs = this.fit(distributions, scale);
+        const projMat = new Matrix(pcs.vectors.to2DArray().slice(0, components));
+        return distributions.map(d => d.project(projMat));
     }
 }
