@@ -6,6 +6,8 @@
 
 This is an implementation of uncertainty-aware principal component analysis, which generalizes PCA to work on probability distributions.
 
+![Teaser](https://raw.githubusercontent.com/grtlr/uapca/master/teaser.gif)
+
 You can find a preprint of our paper at [arXiv:1905.01127](https://arxiv.org/abs/1905.01127) or on my [personal website](https://www.jgoertler.com).
 
 ## Development
