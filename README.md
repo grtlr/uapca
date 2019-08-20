@@ -1,8 +1,8 @@
+# Uncertainty-aware principal component analysis
+
 [![Build Status](https://travis-ci.com/grtlr/uapca.svg?token=M7qsxhpGdq7xqyuVznBq&branch=master)](https://travis-ci.com/grtlr/uapca)
 ![npm](https://img.shields.io/npm/v/uapca)
 ![GitHub](https://img.shields.io/github/license/grtlr/uapca)
-
-# Uncertainty-aware principal component analysis
 
 This is an implementation of uncertainty-aware principal component analysis, which generalizes PCA to work on probability distributions.
 
