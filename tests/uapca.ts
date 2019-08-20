@@ -97,7 +97,7 @@ describe('UaPCA', () => {
         const dists = means.map(m => new MultivariateNormal(Matrix.columnVector(m), cov));
         const pca1 = UaPCA.fit(dists);
 
-        const points = dists.map(d => (new Sampler(d)).sampleN(10000)).flat()
+        const points = dists.map(d => (new Sampler(d)).sampleN(25000)).flat()
             .map(m => new Point(m));
         const pca2 = UaPCA.fit(points);
 
