@@ -16,8 +16,9 @@ export interface Projection {
 }
 
 export class MultivariateNormal implements Distribution, Projection {
-    private meanVec: Matrix;
-    private covMat: Matrix;
+    private readonly meanVec: Matrix;
+    private readonly covMat: Matrix;
+
     public constructor(meanVec: Array<number> | Matrix, covMat: Array<Array<number>> | Matrix) {
         this.meanVec = (meanVec instanceof Matrix) ? meanVec : Matrix.columnVector(meanVec);
         this.covMat = (covMat instanceof Matrix) ? covMat : new Matrix(covMat);
@@ -44,15 +45,17 @@ export class MultivariateNormal implements Distribution, Projection {
 
 class RandomStdNormal implements IRandomOptions {
     public random: () => number;
+
     public constructor() {
         this.random = d3.randomNormal();
     }
 }
 
 export class Sampler {
-    private mean: Matrix;
+    private readonly mean: Matrix;
     private A: Matrix;
-    private gen: RandomStdNormal;
+    private readonly gen: RandomStdNormal;
+
     public constructor(distribution: MultivariateNormal) {
         this.mean = distribution.mean().transpose();
         const eigen = new EigenvalueDecomposition(distribution.covariance());
@@ -75,7 +78,8 @@ export class Sampler {
 }
 
 export class Point implements Distribution, Projection {
-    private data: Matrix;
+    private readonly data: Matrix;
+
     public constructor(data: Array<number>) {
         this.data = Matrix.columnVector(data);
     }
@@ -147,6 +151,38 @@ export class UaPCA {
         const projMat = new Matrix(this.vectors.to2DArray().slice(0, components));
         return distributions.map(d => d.project(projMat));
     }
+
+    public transformPoints(
+        points: Array<Matrix>,
+        components: number,
+    ): Array<Matrix> {
+        const projMat = new Matrix(this.vectors.to2DArray().slice(0, components));
+        return points.map(d => projMat.mmul(d));
+    }
+
+    public transformUnitVectors(
+        components: number
+    ): Array<Matrix> {
+        const dims = this.lengths.length;
+
+        const unitVecs: Array<Matrix> = [];
+        for (let i = 0; i < dims; i++) {
+            const uv = Matrix.zeros(dims, 1).set(i, 0, 1);
+            unitVecs.push(uv);
+        }
+
+        return this.transformPoints(unitVecs, components);
+    }
 }
 
-export { Matrix };
+export function getFactorTracer(
+    distributions: Array<Distribution>,
+    components: number,
+): (t: number) => Array<Matrix> {
+    return (t: number) => {
+        const uapca: UaPCA = UaPCA.fit(distributions, t);
+        return uapca.transformUnitVectors(components);
+    }
+}
+
+export {Matrix};
