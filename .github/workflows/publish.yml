@@ -1,7 +1,6 @@
 name: publish
-on:
-  release
-    types: [published, created, edited]
+
+on: release
 
 jobs:
   build-and-deploy:
