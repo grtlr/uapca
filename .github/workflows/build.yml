@@ -3,7 +3,7 @@ name: build
 on: [push, pull_request]
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
     steps:
     - name: checkout
