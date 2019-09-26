@@ -1,0 +1,28 @@
+name: publish
+on:
+  release
+  types: [published, created, edited]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: yarn install, lint, and build
+      run: |
+        yarn install
+        yarn run lint
+        yarn run build
+      env:
+        CI: true
+
+    - name: test
+      run: |
+        yarn run test
+
+    - name: publish
+      run: |
+        yarn publish
+      env:
+        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        

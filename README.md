@@ -1,6 +1,7 @@
 # Uncertainty-aware principal component analysis
 
 [![Build Status](https://travis-ci.com/grtlr/uapca.svg?token=M7qsxhpGdq7xqyuVznBq&branch=master)](https://travis-ci.com/grtlr/uapca)
+![Build Status](https://github.com/grtlr/uapca/workflows/build/badge.svg)
 ![npm](https://img.shields.io/npm/v/uapca)
 ![GitHub](https://img.shields.io/github/license/grtlr/uapca)
 
