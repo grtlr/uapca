@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "resolveJsonModule": true,
     "declaration": true,
     "declarationDir": "./dist",
     "module": "commonjs",
