@@ -4,17 +4,15 @@ import { describe, it } from 'mocha';
 import { expect } from 'chai';
 import { Matrix } from 'ml-matrix';
 
-describe('Distribution', () => {
-    describe('StandardNormal', () => {
-        const sn = MultivariateNormal.standard(2);
+describe('StandardNormal', () => {
+    const sn = MultivariateNormal.standard(2);
 
-        it('should return zero as mean', () => {
-            expect(sn.mean()).to.eql(new Matrix([[0], [0]]));
-        });
+    it('should return zero as mean', () => {
+        expect(sn.mean()).to.eql(new Matrix([[0], [0]]));
+    });
 
-        it('should return eye as covariance', () => {
-            expect(sn.covariance()).to.eql(new Matrix([[1, 0], [0, 1]]));
-        });
+    it('should return eye as covariance', () => {
+        expect(sn.covariance()).to.eql(new Matrix([[1, 0], [0, 1]]));
     });
 });
 
