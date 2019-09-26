@@ -1,0 +1,24 @@
+name: build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: setup
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - name: lint & build
+      run: |
+        yarn install
+        yarn run lint
+        yarn run build
+      env:
+        CI: true
+
+    - name: test
+      run: |
+        yarn run test
