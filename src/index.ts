@@ -46,12 +46,18 @@ export class MultivariateNormal implements AffineTransformation, Distribution, P
 
     public affineTransformation(A: Matrix, b: Matrix): MultivariateNormal {
         const newMean = this.meanVec.mmul(A).add(b);
-        const newCovMat = A.transpose().mmul(this.covMat).mmul(A);
+        const newCovMat = A
+            .transpose()
+            .mmul(this.covMat)
+            .mmul(A);
         return new MultivariateNormal(newMean, newCovMat);
     }
 
     public project(projectionMatrix: Matrix): MultivariateNormal {
-        return this.affineTransformation(projectionMatrix, Matrix.zeros(1, projectionMatrix.columns));
+        return this.affineTransformation(
+            projectionMatrix,
+            Matrix.zeros(1, projectionMatrix.columns)
+        );
     }
 }
 
@@ -106,7 +112,10 @@ export class Point implements Distribution, Projection {
     }
 
     public project(projectionMatrix: Matrix): Point {
-        return new Point(projectionMatrix.transpose().mmul(this.data).getColumn(0));
+        return new Point(projectionMatrix
+            .transpose()
+            .mmul(this.data)
+            .getColumn(0));
     }
 }
 
