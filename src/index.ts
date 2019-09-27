@@ -49,16 +49,20 @@ class RandomStdNormal implements IRandomOptions {
     }
 }
 
+export function transformationMatrix(distribution: Distribution): Matrix {
+    const vlv = new EigenvalueDecomposition(distribution.covariance());
+    const r = vlv.eigenvectorMatrix.transpose();
+    const s = Matrix.diag(vlv.realEigenvalues.map(x => Math.sqrt(x)));
+    return s.mmul(r);
+}
+
 export class Sampler {
     private mean: Matrix;
     private A: Matrix;
     private gen: RandomStdNormal;
     public constructor(distribution: MultivariateNormal) {
         this.mean = distribution.mean().transpose();
-        const eigen = new EigenvalueDecomposition(distribution.covariance());
-        const q = eigen.eigenvectorMatrix.transpose();
-        const lambda = Matrix.diag(eigen.realEigenvalues.map(x => Math.sqrt(x)));
-        this.A = lambda.mmul(q);
+        this.A = transformationMatrix(distribution);
         this.gen = new RandomStdNormal();
     }
 
