@@ -32,8 +32,9 @@
         "dist/src/index.d.ts"
     ],
     "scripts": {
-        "build": "rollup -c rollup.node.js",
-        "publish": "rollup -c",
+        "build:node": "rollup -c rollup.node.js",
+        "build:bundle": "rollup -c",
+        "build": "npm-run-all build:*",
         "dev": "rollup -c rollup.node.js -w",
         "lint": "eslint --config .eslintrc.json --ext .js,.html,.ts src tests",
         "lint-fix": "eslint --fix --config .eslintrc.json --ext .js,.html,.ts src tests",
