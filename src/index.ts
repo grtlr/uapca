@@ -15,7 +15,16 @@ export interface Projection {
     project(projectionMatrix: Matrix): Distribution;
 }
 
-export class MultivariateNormal implements Distribution, Projection {
+export interface AffineTransformation {
+    /**
+     * Performs an affine transformation of the distribution
+     * @param {Matrix} A - Linear map defined as row matrix.
+     * @param {Matrix} b - Translation defined as row vector.
+     */
+    affineTransformation(A: Matrix, b: Matrix): Distribution;
+}
+
+export class MultivariateNormal implements AffineTransformation, Distribution, Projection {
     private meanVec: Matrix;
     private covMat: Matrix;
     public constructor(meanVec: Array<number> | Matrix, covMat: Array<Array<number>> | Matrix) {
@@ -35,10 +44,14 @@ export class MultivariateNormal implements Distribution, Projection {
         return this.covMat;
     }
 
-    public project(projectionMatrix: Matrix): MultivariateNormal {
-        const newMean = projectionMatrix.mmul(this.meanVec);
-        const newCovMat = projectionMatrix.mmul(this.covMat).mmul(projectionMatrix.transpose());
+    public affineTransformation(A: Matrix, b: Matrix): MultivariateNormal {
+        const newMean = A.mmul(this.meanVec).add(b.transpose());
+        const newCovMat = A.mmul(this.covMat).mmul(A.transpose());
         return new MultivariateNormal(newMean, newCovMat);
+    }
+
+    public project(projectionMatrix: Matrix): MultivariateNormal {
+        return this.affineTransformation(projectionMatrix, Matrix.zeros(1, projectionMatrix.rows));
     }
 }
 
