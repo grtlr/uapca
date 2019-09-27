@@ -10,7 +10,7 @@ export interface Projection {
     /**
      * Projects a distribution onto a lower dimensional subspace
      * defined by the dimensions of the `projectionMatrix`.
-     * @param {Matrix} projectionMatrix - Defined as row matrix.
+     * @param {Matrix} projectionMatrix - Defined as column matrix.
      */
     project(projectionMatrix: Matrix): Distribution;
 }
@@ -28,12 +28,12 @@ export class MultivariateNormal implements AffineTransformation, Distribution, P
     private meanVec: Matrix;
     private covMat: Matrix;
     public constructor(meanVec: Array<number> | Matrix, covMat: Array<Array<number>> | Matrix) {
-        this.meanVec = (meanVec instanceof Matrix) ? meanVec : Matrix.columnVector(meanVec);
+        this.meanVec = (meanVec instanceof Matrix) ? meanVec : Matrix.rowVector(meanVec);
         this.covMat = (covMat instanceof Matrix) ? covMat : new Matrix(covMat);
     }
 
     public static standard(nDims: number): MultivariateNormal {
-        return new MultivariateNormal(Matrix.zeros(nDims, 1), Matrix.eye(nDims, nDims));
+        return new MultivariateNormal(Matrix.zeros(1, nDims), Matrix.eye(nDims, nDims));
     }
 
     public mean(): Matrix {
@@ -45,13 +45,13 @@ export class MultivariateNormal implements AffineTransformation, Distribution, P
     }
 
     public affineTransformation(A: Matrix, b: Matrix): MultivariateNormal {
-        const newMean = A.mmul(this.meanVec).add(b.transpose());
-        const newCovMat = A.mmul(this.covMat).mmul(A.transpose());
+        const newMean = this.meanVec.mmul(A).add(b);
+        const newCovMat = A.transpose().mmul(this.covMat).mmul(A);
         return new MultivariateNormal(newMean, newCovMat);
     }
 
     public project(projectionMatrix: Matrix): MultivariateNormal {
-        return this.affineTransformation(projectionMatrix, Matrix.zeros(1, projectionMatrix.rows));
+        return this.affineTransformation(projectionMatrix, Matrix.zeros(1, projectionMatrix.columns));
     }
 }
 
@@ -74,7 +74,7 @@ export class Sampler {
     private A: Matrix;
     private gen: RandomStdNormal;
     public constructor(distribution: MultivariateNormal) {
-        this.mean = distribution.mean().transpose();
+        this.mean = distribution.mean();
         this.A = transformationMatrix(distribution);
         this.gen = new RandomStdNormal();
     }
@@ -98,7 +98,7 @@ export class Point implements Distribution, Projection {
     }
 
     public mean(): Matrix {
-        return this.data;
+        return this.data.transpose();
     }
 
     public covariance(): Matrix {
@@ -106,12 +106,12 @@ export class Point implements Distribution, Projection {
     }
 
     public project(projectionMatrix: Matrix): Point {
-        return new Point(projectionMatrix.mmul(this.data).getColumn(0));
+        return new Point(projectionMatrix.transpose().mmul(this.data).getColumn(0));
     }
 }
 
 function outerProduct(x: Matrix): Matrix {
-    return x.mmul(x.transpose());
+    return x.transpose().mmul(x);
 }
 
 export function arithmeticMean(matrices: Array<Matrix>): Matrix {
@@ -162,7 +162,7 @@ export class UaPCA {
         components: number,
     ): Array<Distribution> {
         const projMat = new Matrix(this.vectors.to2DArray().slice(0, components));
-        return distributions.map(d => d.project(projMat));
+        return distributions.map(d => d.project(projMat.transpose()));
     }
 }
 

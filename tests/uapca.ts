@@ -8,7 +8,7 @@ describe('StandardNormal', () => {
     const sn = MultivariateNormal.standard(2);
 
     it('should return zero as mean', () => {
-        expect(sn.mean()).to.eql(new Matrix([[0], [0]]));
+        expect(sn.mean()).to.eql(Matrix.rowVector([0, 0]));
     });
 
     it('should return eye as covariance', () => {
@@ -19,7 +19,7 @@ describe('StandardNormal', () => {
 describe('MultivariateNormal', () => {
     it('should allow both constructor types', () => {
         const a = new MultivariateNormal([0, 0], [[1, 0], [0, 1]]);
-        const b = new MultivariateNormal(Matrix.columnVector([0, 0]), Matrix.diagonal([1, 1]));
+        const b = new MultivariateNormal(Matrix.rowVector([0, 0]), Matrix.diagonal([1, 1]));
         expect(a).to.eql(b);
     });
 });
@@ -29,8 +29,8 @@ describe('Projection', () => {
         const v1 = new Point([1, 1, 1]);
         const v2 = new Point([1, 42, 42]);
         const projmat = new Matrix([[1, 0, 0], [0, 1, 0]]);
-        const pv1 = v1.project(projmat);
-        const pv2 = v2.project(projmat);
+        const pv1 = v1.project(projmat.transpose());
+        const pv2 = v2.project(projmat.transpose());
         expect(pv1).to.eql(new Point([1, 1]));
         expect(pv2).to.eql(new Point([1, 42]));
     });
@@ -38,32 +38,30 @@ describe('Projection', () => {
     it('StandardNormal should be projected correctly', () => {
         const sn3 = MultivariateNormal.standard(3);
         const projmat = new Matrix([[1, 0, 0], [0, 1, 0]]);
-        const psn3 = sn3.project(projmat);
+        const psn3 = sn3.project(projmat.transpose());
         expect(psn3).to.eql(MultivariateNormal.standard(2));
     });
 
     it('correlated MultivariateNormal should be projected correctly', () => {
-        const mean = Matrix.zeros(3, 1);
+        const mean = Matrix.zeros(1,3);
         const covMat = new Matrix([[1, 0.5, 0.5], [0.5, 1, 0.5], [0.5, 0.5, 1]]);
         const mvn = new MultivariateNormal(mean, covMat);
         const projmat = new Matrix([[1, 0, 0], [0, 1, 0]]);
-        const result = mvn.project(projmat);
+        const result = mvn.project(projmat.transpose());
         expect(result).to.eql(new MultivariateNormal(
-            Matrix.zeros(2, 1),
+            Matrix.zeros(1,2),
             new Matrix([[1, 0.5], [0.5, 1]])
         ));
     });
 
     it('non-zero mean MultivariateNormal should be projected correctly', () => {
-        const mean = Matrix.columnVector([1, 42, 0]);
-        const covMat = new Matrix([[1, 0.5, 0.5], [0.5, 1, 0.5], [0.5, 0.5, 1]]);
-        const mvn = new MultivariateNormal(mean, covMat);
+        const mvn = new MultivariateNormal(
+            [1, 42, 0],
+            [[1, 0.5, 0.5], [0.5, 1, 0.5], [0.5, 0.5, 1]]
+        );
         const projmat = new Matrix([[1, 0, 0], [0, 1, 0]]);
-        const result = mvn.project(projmat);
-        expect(result).to.eql(new MultivariateNormal(
-            Matrix.columnVector([1, 42]),
-            new Matrix([[1, 0.5], [0.5, 1]])
-        ));
+        const result = mvn.project(projmat.transpose());
+        expect(result).to.eql(new MultivariateNormal([1, 42], [[1, 0.5], [0.5, 1]]));
     });
 });
 
@@ -76,7 +74,7 @@ describe('UaPCA', () => {
             [0, -1, 0],
         ];
         const iso = Matrix.eye(3, 3);
-        const dists = means.map(m => new MultivariateNormal(Matrix.columnVector(m), iso));
+        const dists = means.map(m => new MultivariateNormal(m, iso));
         const points = means.map(m => new Point(m));
 
         const pca1 = UaPCA.fit(dists);
@@ -87,12 +85,12 @@ describe('UaPCA', () => {
     });
 
     it('should yield same result as sampling', () => {
-        const mean = Matrix.columnVector([42, 0]);
+        const mean = [42, 0];
         const cov = new Matrix([[1, 0.5], [0.5, 1]]);
         const gauss = new MultivariateNormal(mean, cov);
         const means = (new Sampler(gauss)).sampleN(3);
 
-        const dists = means.map(m => new MultivariateNormal(Matrix.columnVector(m), cov));
+        const dists = means.map(m => new MultivariateNormal(m, cov));
         const pca1 = UaPCA.fit(dists);
 
         const points = dists.map(d => (new Sampler(d)).sampleN(25000)).flat()
@@ -112,12 +110,12 @@ describe('UaPCA', () => {
     });
 
     it('should yield same result as regular PCA when scaling with 0', () => {
-        const mean = Matrix.columnVector([42, 0]);
+        const mean = Matrix.rowVector([42, 0]);
         const cov = new Matrix([[1, 0.5], [0.5, 1]]);
         const gauss = new MultivariateNormal(mean, cov);
         const means = (new Sampler(gauss)).sampleN(3);
 
-        const dists = means.map(m => new MultivariateNormal(Matrix.columnVector(m), cov));
+        const dists = means.map(m => new MultivariateNormal(m, cov));
         const pca1 = UaPCA.fit(dists, 0);
 
         const points = means.map(m => new Point(m));
@@ -143,11 +141,11 @@ describe('UaPCA', () => {
             [0, -1, 0],
         ];
         const cov = new Matrix([[1, 0.5, 0.5], [0.5, 1, 0.5], [0.5, 0.5, 1]]);
-        const dists = means.map(m => new MultivariateNormal(Matrix.columnVector(m), cov));
+        const dists = means.map(m => new MultivariateNormal(m, cov));
         const transformed = UaPCA.fit(dists).transform(dists, 2);
 
         expect(transformed.length).to.be.eql(4);
-        expect(transformed[0].mean().rows).to.be.eql(2);
+        expect(transformed[0].mean().columns).to.be.eql(2);
     });
 });
 
@@ -177,7 +175,7 @@ describe('Sampler', () => {
 
     it('samples should have the same sample covariance matrix', () => {
         const count = 100000;
-        const mean = Matrix.columnVector([42, 0]);
+        const mean = [42, 0];
         const cov = new Matrix([[1, 0.5], [0.5, 1]]);
         const dist = new MultivariateNormal(mean, cov);
         const samples = (new Sampler(dist)).sampleN(count);
