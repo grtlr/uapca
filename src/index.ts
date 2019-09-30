@@ -46,8 +46,7 @@ export class MultivariateNormal implements AffineTransformation, Distribution, P
 
     public affineTransformation(A: Matrix, b: Matrix): MultivariateNormal {
         const newMean = this.meanVec.mmul(A).add(b);
-        const newCovMat = A
-            .transpose()
+        const newCovMat = A.transpose()
             .mmul(this.covMat)
             .mmul(A);
         return new MultivariateNormal(newMean, newCovMat);
@@ -69,7 +68,7 @@ class RandomStdNormal implements IRandomOptions {
 }
 
 export function transformationMatrix(distribution: Distribution): Matrix {
-    const vlv = new EigenvalueDecomposition(distribution.covariance());
+    const vlv = new EigenvalueDecomposition(distribution.covariance(), { assumeSymmetric: true });
     const r = vlv.eigenvectorMatrix.transpose();
     const s = Matrix.diag(vlv.realEigenvalues.map(x => Math.sqrt(x)));
     return s.mmul(r);
@@ -156,7 +155,7 @@ export class UaPCA {
         }));
 
         // Compute components and sort by eigenvalues
-        const e = new EigenvalueDecomposition(empericalCov);
+        const e = new EigenvalueDecomposition(empericalCov, { assumeSymmetric: true });
         const evals = e.realEigenvalues;
         const evecs = e.eigenvectorMatrix.transpose().to2DArray();
 
