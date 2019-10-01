@@ -1,0 +1,31 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@master
+
+    - name: setup
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+
+    - name: install, lint, and build
+      run: yarn install
+
+    - name: lint
+      run: yarn run lint
+      env:
+        CI: true
+
+    - name: build
+      run: yarn run build
+      env:
+        CI: true
+
+    - name: test
+      run: yarn run test

@@ -1,4 +1,4 @@
-import {MultivariateNormal, getFactorTracer} from '../src/index.ts';
+import {MultivariateNormal, getFactorTracer, Point} from '../src/index.ts';
 import {describe, it} from 'mocha';
 import {StudentExample, TracePoint} from "./factortrace-data";
 
@@ -17,13 +17,13 @@ describe('FactorTracer', () => {
         const tracer = getFactorTracer(dists, 2);
 
         studentExample.expected2dTracePoints.forEach((etp: TracePoint) => {
-            const projectedUnitVectors: Array<Matrix> = tracer(etp.scale);
+            const projectedUnitVectors: Array<Point> = tracer(etp.scale);
 
-            projectedUnitVectors.forEach((puv: Matrix, i: number) => {
-                const expectedPuv: Matrix = etp.projectedUnitVectors[i];
+            projectedUnitVectors.forEach((puv: Point, i: number) => {
+                const expectedPuv: Point = etp.projectedUnitVectors[i];
 
-                const puvArray = puv.to1DArray();
-                const expectedPuvArray = expectedPuv.to1DArray();
+                const puvArray = puv.getData();
+                const expectedPuvArray = expectedPuv.getData();
 
                 puvArray.forEach((value: number, i: number) => {
                     const expectedValue: number = expectedPuvArray[i];

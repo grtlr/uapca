@@ -10,22 +10,30 @@ export interface Projection {
     /**
      * Projects a distribution onto a lower dimensional subspace
      * defined by the dimensions of the `projectionMatrix`.
-     * @param {Matrix} projectionMatrix - Defined as row matrix.
+     * @param {Matrix} projectionMatrix - Defined as column matrix.
      */
     project(projectionMatrix: Matrix): Distribution;
 }
 
-export class MultivariateNormal implements Distribution, Projection {
-    private readonly meanVec: Matrix;
-    private readonly covMat: Matrix;
+export interface AffineTransformation {
+    /**
+     * Performs an affine transformation of the distribution
+     * @param {Matrix} A - Linear map defined as row matrix.
+     * @param {Matrix} b - Translation defined as row vector.
+     */
+    affineTransformation(A: Matrix, b: Matrix): Distribution;
+}
 
+export class MultivariateNormal implements AffineTransformation, Distribution, Projection {
+    private meanVec: Matrix;
+    private covMat: Matrix;
     public constructor(meanVec: Array<number> | Matrix, covMat: Array<Array<number>> | Matrix) {
-        this.meanVec = (meanVec instanceof Matrix) ? meanVec : Matrix.columnVector(meanVec);
+        this.meanVec = (meanVec instanceof Matrix) ? meanVec : Matrix.rowVector(meanVec);
         this.covMat = (covMat instanceof Matrix) ? covMat : new Matrix(covMat);
     }
 
     public static standard(nDims: number): MultivariateNormal {
-        return new MultivariateNormal(Matrix.zeros(nDims, 1), Matrix.eye(nDims, nDims));
+        return new MultivariateNormal(Matrix.zeros(1, nDims), Matrix.eye(nDims, nDims));
     }
 
     public mean(): Matrix {
@@ -36,32 +44,43 @@ export class MultivariateNormal implements Distribution, Projection {
         return this.covMat;
     }
 
-    public project(projectionMatrix: Matrix): MultivariateNormal {
-        const newMean = projectionMatrix.mmul(this.meanVec);
-        const newCovMat = projectionMatrix.mmul(this.covMat).mmul(projectionMatrix.transpose());
+    public affineTransformation(A: Matrix, b: Matrix): MultivariateNormal {
+        const newMean = this.meanVec.mmul(A).add(b);
+        const newCovMat = A.transpose()
+            .mmul(this.covMat)
+            .mmul(A);
         return new MultivariateNormal(newMean, newCovMat);
+    }
+
+    public project(projectionMatrix: Matrix): MultivariateNormal {
+        return this.affineTransformation(
+            projectionMatrix,
+            Matrix.zeros(1, projectionMatrix.columns)
+        );
     }
 }
 
 class RandomStdNormal implements IRandomOptions {
     public random: () => number;
-
     public constructor() {
         this.random = d3.randomNormal();
     }
 }
 
-export class Sampler {
-    private readonly mean: Matrix;
-    private A: Matrix;
-    private readonly gen: RandomStdNormal;
+export function transformationMatrix(distribution: Distribution): Matrix {
+    const vlv = new EigenvalueDecomposition(distribution.covariance(), { assumeSymmetric: true });
+    const r = vlv.eigenvectorMatrix.transpose();
+    const s = Matrix.diag(vlv.realEigenvalues.map(x => Math.sqrt(x)));
+    return s.mmul(r);
+}
 
+export class Sampler {
+    private mean: Matrix;
+    private A: Matrix;
+    private gen: RandomStdNormal;
     public constructor(distribution: MultivariateNormal) {
-        this.mean = distribution.mean().transpose();
-        const eigen = new EigenvalueDecomposition(distribution.covariance());
-        const q = eigen.eigenvectorMatrix.transpose();
-        const lambda = Matrix.diag(eigen.realEigenvalues.map(x => Math.sqrt(x)));
-        this.A = lambda.mmul(q);
+        this.mean = distribution.mean();
+        this.A = transformationMatrix(distribution);
         this.gen = new RandomStdNormal();
     }
 
@@ -78,14 +97,14 @@ export class Sampler {
 }
 
 export class Point implements Distribution, Projection {
-    private readonly data: Matrix;
+    private data: Matrix;
 
     public constructor(data: Array<number>) {
         this.data = Matrix.columnVector(data);
     }
 
     public mean(): Matrix {
-        return this.data;
+        return this.data.transpose();
     }
 
     public covariance(): Matrix {
@@ -93,12 +112,19 @@ export class Point implements Distribution, Projection {
     }
 
     public project(projectionMatrix: Matrix): Point {
-        return new Point(projectionMatrix.mmul(this.data).getColumn(0));
+        return new Point(projectionMatrix
+            .transpose()
+            .mmul(this.data)
+            .getColumn(0));
+    }
+
+    public getData(): Array<number> {
+        return this.data.to1DArray();
     }
 }
 
 function outerProduct(x: Matrix): Matrix {
-    return x.mmul(x.transpose());
+    return x.transpose().mmul(x);
 }
 
 export function arithmeticMean(matrices: Array<Matrix>): Matrix {
@@ -134,7 +160,7 @@ export class UaPCA {
         }));
 
         // Compute components and sort by eigenvalues
-        const e = new EigenvalueDecomposition(empericalCov);
+        const e = new EigenvalueDecomposition(empericalCov, { assumeSymmetric: true });
         const evals = e.realEigenvalues;
         const evecs = e.eigenvectorMatrix.transpose().to2DArray();
 
@@ -149,15 +175,15 @@ export class UaPCA {
         components: number,
     ): Array<Distribution> {
         const projMat = new Matrix(this.vectors.to2DArray().slice(0, components));
-        return distributions.map(d => d.project(projMat));
+        return distributions.map(d => d.project(projMat.transpose()));
     }
 
     public transformPoints(
-        points: Array<Matrix>,
+        points: Array<Point>,
         components: number,
     ): Array<Matrix> {
         const projMat = new Matrix(this.vectors.to2DArray().slice(0, components));
-        return points.map(d => projMat.mmul(d));
+        return points.map(d => d.project(projMat.transpose()));
     }
 
     public transformUnitVectors(
@@ -165,10 +191,11 @@ export class UaPCA {
     ): Array<Matrix> {
         const dims = this.lengths.length;
 
-        const unitVecs: Array<Matrix> = [];
+        const unitVecs: Array<Point> = [];
         for (let i = 0; i < dims; i++) {
-            const uv = Matrix.zeros(dims, 1).set(i, 0, 1);
-            unitVecs.push(uv);
+            const vecArray = Array(dims).fill(0);
+            vecArray[i] = 1;
+            unitVecs.push(new Point(vecArray));
         }
 
         return this.transformPoints(unitVecs, components);
@@ -178,11 +205,11 @@ export class UaPCA {
 export function getFactorTracer(
     distributions: Array<Distribution>,
     components: number,
-): (t: number) => Array<Matrix> {
+): (t: number) => Array<Point> {
     return (t: number) => {
         const uapca: UaPCA = UaPCA.fit(distributions, t);
         return uapca.transformUnitVectors(components);
     }
 }
 
-export {Matrix};
+export { Matrix };
