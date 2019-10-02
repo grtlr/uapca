@@ -3,6 +3,7 @@ import { EigenvalueDecomposition, IRandomOptions, Matrix } from 'ml-matrix';
 
 export interface Distribution {
     mean(): Matrix;
+
     covariance(): Matrix;
 }
 
@@ -27,6 +28,7 @@ export interface AffineTransformation {
 export class MultivariateNormal implements AffineTransformation, Distribution, Projection {
     private meanVec: Matrix;
     private covMat: Matrix;
+
     public constructor(meanVec: Array<number> | Matrix, covMat: Array<Array<number>> | Matrix) {
         this.meanVec = (meanVec instanceof Matrix) ? meanVec : Matrix.rowVector(meanVec);
         this.covMat = (covMat instanceof Matrix) ? covMat : new Matrix(covMat);
@@ -62,6 +64,7 @@ export class MultivariateNormal implements AffineTransformation, Distribution, P
 
 class RandomStdNormal implements IRandomOptions {
     public random: () => number;
+
     public constructor() {
         this.random = d3.randomNormal();
     }
@@ -78,6 +81,7 @@ export class Sampler {
     private mean: Matrix;
     private A: Matrix;
     private gen: RandomStdNormal;
+
     public constructor(distribution: MultivariateNormal) {
         this.mean = distribution.mean();
         this.A = transformationMatrix(distribution);
@@ -178,17 +182,16 @@ export class UaPCA {
         return distributions.map(d => d.project(projMat.transpose()));
     }
 
+    // TODO: Remove and replace with transform()
     public transformPoints(
         points: Array<Point>,
         components: number,
-    ): Array<Matrix> {
+    ): Array<Point> {
         const projMat = new Matrix(this.vectors.to2DArray().slice(0, components));
         return points.map(d => d.project(projMat.transpose()));
     }
 
-    public transformUnitVectors(
-        components: number
-    ): Array<Matrix> {
+    public transformUnitVectors(components: number): Array<Point> {
         const dims = this.lengths.length;
 
         const unitVecs: Array<Point> = [];
@@ -202,13 +205,39 @@ export class UaPCA {
     }
 }
 
+export type ProjectedUnitVectors = Array<Point>;
+export interface TracePoint {
+    scale: number;
+    projectedUnitVectors: ProjectedUnitVectors;
+}
+export type FactorTracer = (t: number) => ProjectedUnitVectors;
+
 export function getFactorTracer(
     distributions: Array<Distribution>,
     components: number,
-): (t: number) => Array<Point> {
-    return (t: number) => {
+): FactorTracer {
+    return (t: number): ProjectedUnitVectors => {
         const uapca: UaPCA = UaPCA.fit(distributions, t);
         return uapca.transformUnitVectors(components);
+    };
+}
+
+export function* getTraceIterator(
+    factorTracer: FactorTracer,
+    precision: number,
+    samplingStrategy: (t: number) => number = (t) => t ** 2
+): IterableIterator<TracePoint> {
+    for (let i = 0; i < 100; i++) {
+        const t = samplingStrategy(i * precision);
+
+        if (Math.abs(i) > Number.MAX_SAFE_INTEGER || Math.abs(t) > Number.MAX_SAFE_INTEGER){
+            break;
+        }
+
+        yield {
+            scale: t,
+            projectedUnitVectors: factorTracer(t),
+        };
     }
 }
 
