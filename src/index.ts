@@ -1,5 +1,5 @@
 import * as d3 from 'd3-random';
-import { EigenvalueDecomposition, IRandomOptions, Matrix } from 'ml-matrix';
+import { EigenvalueDecomposition, Matrix, IRandomOptions } from 'ml-matrix';
 
 export interface Distribution {
     mean(): Matrix;
@@ -12,7 +12,7 @@ export interface Projection {
      * defined by the dimensions of the `projectionMatrix`.
      * @param {Matrix} projectionMatrix - Defined as column matrix.
      */
-    project(projectionMatrix: Matrix): Distribution;
+    project(projectionMatrix: Matrix): Projection;
 }
 
 export interface AffineTransformation {
@@ -21,7 +21,7 @@ export interface AffineTransformation {
      * @param {Matrix} A - Linear map defined as row matrix.
      * @param {Matrix} b - Translation defined as row vector.
      */
-    affineTransformation(A: Matrix, b: Matrix): Distribution;
+    affineTransformation(A: Matrix, b: Matrix): AffineTransformation;
 }
 
 export class MultivariateNormal implements AffineTransformation, Distribution, Projection {
@@ -99,22 +99,23 @@ export class Sampler {
 export class Point implements Distribution, Projection {
     private data: Matrix;
     public constructor(data: Array<number>) {
-        this.data = Matrix.columnVector(data);
+        this.data = Matrix.rowVector(data);
+    }
+
+    public to1DArray(): Array<number> {
+        return this.data.to1DArray();
     }
 
     public mean(): Matrix {
-        return this.data.transpose();
+        return this.data;
     }
 
     public covariance(): Matrix {
-        return Matrix.zeros(this.data.rows, this.data.rows);
+        return Matrix.zeros(this.data.columns, this.data.columns);
     }
 
     public project(projectionMatrix: Matrix): Point {
-        return new Point(projectionMatrix
-            .transpose()
-            .mmul(this.data)
-            .getColumn(0));
+        return new Point(this.data.mmul(projectionMatrix).getRow(0));
     }
 }
 
@@ -166,12 +167,10 @@ export class UaPCA {
     }
 
     public transform(
-        distributions: Array<Distribution & Projection>,
+        objects: Array<Projection>,
         components: number,
-    ): Array<Distribution> {
+    ): Array<Projection> {
         const projMat = new Matrix(this.vectors.to2DArray().slice(0, components));
-        return distributions.map(d => d.project(projMat.transpose()));
+        return objects.map(d => d.project(projMat.transpose()));
     }
 }
-
-export { Matrix };
