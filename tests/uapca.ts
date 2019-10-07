@@ -2,7 +2,6 @@ import { arithmeticMean, MultivariateNormal, Sampler, UaPCA } from '../src/index
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
 import { Matrix } from 'ml-matrix';
-import { Point } from './util';
 
 describe('StandardNormal', () => {
     const sn = MultivariateNormal.standard(2);
