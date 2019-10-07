@@ -151,3 +151,5 @@ export class UaPCA {
         return objects.map(d => d.project(projMat.transpose()));
     }
 }
+
+export { Matrix };
