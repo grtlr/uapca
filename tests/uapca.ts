@@ -2,7 +2,6 @@ import { arithmeticMean, MultivariateNormal, Sampler, UaPCA } from '../src/index
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
 import { Matrix } from 'ml-matrix';
-import { Point } from './util';
 
 describe('StandardNormal', () => {
     const sn = MultivariateNormal.standard(2);
@@ -25,16 +24,6 @@ describe('MultivariateNormal', () => {
 });
 
 describe('Projection', () => {
-    it('Points should be projected correctly', () => {
-        const v1 = new Point([1, 1, 1]);
-        const v2 = new Point([1, 42, 42]);
-        const projmat = new Matrix([[1, 0, 0], [0, 1, 0]]);
-        const pv1 = v1.project(projmat.transpose());
-        const pv2 = v2.project(projmat.transpose());
-        expect(pv1).to.eql(new Point([1, 1]));
-        expect(pv2).to.eql(new Point([1, 42]));
-    });
-
     it('StandardNormal should be projected correctly', () => {
         const sn3 = MultivariateNormal.standard(3);
         const projmat = new Matrix([[1, 0, 0], [0, 1, 0]]);
@@ -75,10 +64,12 @@ describe('UaPCA', () => {
         ];
         const iso = Matrix.eye(3, 3);
         const dists = means.map(m => new MultivariateNormal(m, iso));
-        const points = means.map(m => new Point(m));
+
+        const zero = Matrix.zeros(3, 3);
+        const dists0 = means.map(m => new MultivariateNormal(m, zero));
 
         const pca1 = UaPCA.fit(dists);
-        const pca2 = UaPCA.fit(points);
+        const pca2 = UaPCA.fit(dists0);
 
         expect(pca1.lengths.length).to.eql(3);
         expect(pca1.vectors).to.eql(pca2.vectors);
@@ -93,8 +84,9 @@ describe('UaPCA', () => {
         const dists = means.map(m => new MultivariateNormal(m, cov));
         const pca1 = UaPCA.fit(dists);
 
+        const zero = Matrix.zeros(2, 2);
         const points = dists.map(d => (new Sampler(d)).sampleN(25000)).flat()
-            .map(m => new Point(m));
+            .map(m => new MultivariateNormal(m, zero));
         const pca2 = UaPCA.fit(points);
 
         expect(pca1.vectors.rows).to.be.eql(2);
@@ -118,7 +110,8 @@ describe('UaPCA', () => {
         const dists = means.map(m => new MultivariateNormal(m, cov));
         const pca1 = UaPCA.fit(dists, 0);
 
-        const points = means.map(m => new Point(m));
+        const zero = Matrix.zeros(2, 2);
+        const points = means.map(m => new MultivariateNormal(m, zero));
         const pca2 = UaPCA.fit(points);
 
         expect(pca1.vectors.rows).to.be.eql(2);
