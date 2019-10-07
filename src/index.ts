@@ -1,5 +1,5 @@
 import * as d3 from 'd3-random';
-import { EigenvalueDecomposition, Matrix, IRandomOptions } from 'ml-matrix';
+import { EigenvalueDecomposition, IRandomOptions, Matrix } from 'ml-matrix';
 
 export interface Distribution {
     mean(): Matrix;
@@ -93,29 +93,6 @@ export class Sampler {
 
     private dims(): number {
         return this.mean.columns;
-    }
-}
-
-export class Point implements Distribution, Projection {
-    private data: Matrix;
-    public constructor(data: Array<number>) {
-        this.data = Matrix.rowVector(data);
-    }
-
-    public to1DArray(): Array<number> {
-        return this.data.to1DArray();
-    }
-
-    public mean(): Matrix {
-        return this.data;
-    }
-
-    public covariance(): Matrix {
-        return Matrix.zeros(this.data.columns, this.data.columns);
-    }
-
-    public project(projectionMatrix: Matrix): Point {
-        return new Point(this.data.mmul(projectionMatrix).getRow(0));
     }
 }
 
