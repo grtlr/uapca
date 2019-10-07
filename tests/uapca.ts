@@ -1,8 +1,8 @@
-import { arithmeticMean, MultivariateNormal, Point, Sampler, UaPCA } from '../src/index.ts';
+import { arithmeticMean, MultivariateNormal, Sampler, UaPCA } from '../src/index.ts';
 import { describe, it } from 'mocha';
-
 import { expect } from 'chai';
 import { Matrix } from 'ml-matrix';
+import { Point } from './util';
 
 describe('StandardNormal', () => {
     const sn = MultivariateNormal.standard(2);
@@ -43,13 +43,13 @@ describe('Projection', () => {
     });
 
     it('correlated MultivariateNormal should be projected correctly', () => {
-        const mean = Matrix.zeros(1,3);
+        const mean = Matrix.zeros(1, 3);
         const covMat = new Matrix([[1, 0.5, 0.5], [0.5, 1, 0.5], [0.5, 0.5, 1]]);
         const mvn = new MultivariateNormal(mean, covMat);
         const projmat = new Matrix([[1, 0, 0], [0, 1, 0]]);
         const result = mvn.project(projmat.transpose());
         expect(result).to.eql(new MultivariateNormal(
-            Matrix.zeros(1,2),
+            Matrix.zeros(1, 2),
             new Matrix([[1, 0.5], [0.5, 1]])
         ));
     });
