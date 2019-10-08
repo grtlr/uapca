@@ -1,5 +1,5 @@
 import * as d3 from 'd3-random';
-import { EigenvalueDecomposition, IRandomOptions, Matrix } from 'ml-matrix';
+import { EigenvalueDecomposition, IRandomOptions, Matrix, MatrixSubView } from 'ml-matrix';
 
 export interface Distribution {
     mean(): Matrix;
@@ -114,8 +114,8 @@ function centering(distributions: Array<Distribution>): Matrix {
 }
 
 export class UaPCA {
-    public readonly lengths: Array<number>;
-    public readonly vectors: Matrix; // row matrix!
+    private lengths: Array<number>;
+    private vectors: Matrix; // row matrix!
 
     private constructor(lengths: Array<number>, vectors: Matrix) {
         this.lengths = lengths;
@@ -143,11 +143,21 @@ export class UaPCA {
         return new UaPCA(comps.map(d => d[0]), new Matrix(comps.map(v => v[1])));
     }
 
+    public eigenvalues(nDims?: number): Array<number> {
+        return nDims ? this.lengths.slice(0, nDims) : this.lengths;
+    }
+
+    public projectionMatrix(nDims?: number): Matrix {
+        return nDims
+            ? new  MatrixSubView(this.vectors, 0, nDims - 1, 0, this.vectors.columns - 1)
+            : this.vectors;
+    }
+
     public transform(
         objects: Array<Projection>,
         components: number,
     ): Array<Projection> {
-        const projMat = new Matrix(this.vectors.to2DArray().slice(0, components));
+        const projMat = this.projectionMatrix(components);
         return objects.map(d => d.project(projMat.transpose()));
     }
 }

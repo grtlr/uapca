@@ -70,7 +70,7 @@ describe('UaPCA', () => {
         const pca1 = UaPCA.fit(dists);
         const pca2 = UaPCA.fit(dists0);
 
-        expect(pca1.lengths.length).to.eql(3);
+        expect(pca1.eigenvalues().length).to.eql(3);
         expect(pca1.vectors).to.eql(pca2.vectors);
     });
 
@@ -91,8 +91,8 @@ describe('UaPCA', () => {
         expect(pca1.vectors.rows).to.be.eql(2);
         expect(pca1.vectors.columns).to.be.eql(2);
 
-        expect(pca1.lengths[0]).to.be.closeTo(pca2.lengths[0], 0.1);
-        expect(pca1.lengths[1]).to.be.closeTo(pca2.lengths[1], 0.1);
+        expect(pca1.eigenvalues()[0]).to.be.closeTo(pca2.eigenvalues()[0], 0.1);
+        expect(pca1.eigenvalues()[1]).to.be.closeTo(pca2.eigenvalues()[1], 0.1);
 
         expect(pca1.vectors.get(0, 0)).to.be.closeTo(pca2.vectors.get(0, 0), 0.1);
         expect(pca1.vectors.get(1, 0)).to.be.closeTo(pca2.vectors.get(1, 0), 0.1);
