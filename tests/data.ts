@@ -1,9 +1,8 @@
 import * as studentGrades from '../data/student_grades.json';
 
 import { describe, it } from 'mocha';
-import { MultivariateNormal, UaPCA } from '../src/index.ts';
+import { Matrix, MultivariateNormal, UaPCA } from '../src/index.ts';
 import { expect } from 'chai';
-import { Matrix } from 'ml-matrix';
 
 describe('Student dataset', () => {
     const dists = studentGrades.distributions.map(d => new MultivariateNormal(d.mean, d.cov));
