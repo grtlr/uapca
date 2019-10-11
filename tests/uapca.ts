@@ -84,7 +84,7 @@ describe('UaPCA', () => {
         const pca1 = UaPCA.fit(dists);
 
         const zero = Matrix.zeros(2, 2);
-        const points = dists.map(d => (new Sampler(d)).sampleN(25000)).flat()
+        const points = dists.map(d => (new Sampler(d)).sampleN(30000)).flat()
             .map(m => new MultivariateNormal(m, zero));
         const pca2 = UaPCA.fit(points);
 
@@ -166,7 +166,7 @@ describe('Sampler', () => {
     });
 
     it('samples should have the same sample covariance matrix', () => {
-        const count = 100000;
+        const count = 110000;
         const mean = [42, 0];
         const cov = new Matrix([[1, 0.5], [0.5, 1]]);
         const dist = new MultivariateNormal(mean, cov);
