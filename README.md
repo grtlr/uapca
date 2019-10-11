@@ -9,7 +9,7 @@ This is an implementation of uncertainty-aware principal component analysis, whi
 ![Teaser](https://raw.githubusercontent.com/grtlr/uapca/master/teaser.gif)
 
 You can find a preprint of our paper at [arXiv:1905.01127](https://arxiv.org/abs/1905.01127) or on my [personal website](https://www.jgoertler.com).
-We also extracted means and covariances from the [*student grade* dataset](https://raw.githubusercontent.com/grtlr/uapca/master/data/student_grades.json).
+We also extracted means and covariances from the [*student grades* dataset](https://raw.githubusercontent.com/grtlr/uapca/master/data/student_grades.json).
 
 ## Development
 
