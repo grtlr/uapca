@@ -1,9 +1,9 @@
 import * as d3 from 'd3-array';
-import { UaPCA, Matrix } from './uapca';
+import { Distribution, Matrix, UaPCA } from './uapca';
 
 export class Trace {
-    private samples: uapca.Matrix;
-    public constructor(samples: uapca.Matrix) {
+    private samples: Matrix;
+    public constructor(samples: Matrix) {
         this.samples = samples;
     }
 
@@ -22,10 +22,10 @@ export class FactorTraces {
     private max: number;
     private N: number;
     private components: number;
-    private traceSamples: Array<uapca.Matrix>;
+    private traceSamples: Array<Matrix>;
 
     public constructor(
-        distributions: Array<uapca.Distribution>,
+        distributions: Array<Distribution>,
         numSamples?: number,
         min?: number,
         max?: number,
@@ -43,19 +43,19 @@ export class FactorTraces {
         const sampleAt = d3.range(this.N).map(i => Math.sqrt(yMin + i * step));
 
         // We need to fit the aligned version of each PCA because components might flip otherwise.
-        const PCAs = sampleAt.map(t => uapca.UaPCA.fit(distributions, t).aligned());
+        const PCAs = sampleAt.map(t => UaPCA.fit(distributions, t).aligned());
 
         const nDims = distributions[0].mean().columns;
         this.traceSamples = PCAs.map(pca => {
             const Pt = pca.projectionMatrix(this.components).transpose();
-            return uapca.Matrix.eye(nDims, nDims).mmul(Pt);
+            return Matrix.eye(nDims, nDims).mmul(Pt);
         });
     }
 
     public getTrace(dimension: number): Trace {
         // initialize
         const projected = this.traceSamples[0];
-        const trace = uapca.Matrix.zeros(this.N, this.components);
+        const trace = Matrix.zeros(this.N, this.components);
         trace.setRow(0, projected.getRowVector(dimension));
 
         for (let i = 1; i < this.traceSamples.length; ++i) {
@@ -63,8 +63,8 @@ export class FactorTraces {
 
             const a = projected.getRowVector(dimension);
             const b = projected.getRowVector(dimension).mul(-1);
-            const distA = uapca.Matrix.sub(a, trace.getRowVector(i - 1));
-            const distB = uapca.Matrix.sub(b, trace.getRowVector(i - 1));
+            const distA = Matrix.sub(a, trace.getRowVector(i - 1));
+            const distB = Matrix.sub(b, trace.getRowVector(i - 1));
 
             if (distA.dot(distA) < distB.dot(distB)) {
                 trace.setRow(i, a);
