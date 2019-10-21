@@ -4,12 +4,29 @@
 ![npm](https://img.shields.io/npm/v/uapca)
 ![GitHub](https://img.shields.io/github/license/grtlr/uapca)
 
-This is an implementation of uncertainty-aware principal component analysis, which generalizes PCA to work on probability distributions.
+This is an implementation of uncertainty-aware principal component analysis, which generalizes PCA to work on probability distributions. You can find a live Observable notebook demonstrating our method [here](https://observablehq.com/@grtlr/uncertainty-aware-pca).
 
 ![Teaser](https://raw.githubusercontent.com/grtlr/uapca/master/teaser.gif)
 
 You can find a preprint of our paper at [arXiv:1905.01127](https://arxiv.org/abs/1905.01127) or on my [personal website](https://www.jgoertler.com).
 We also extracted means and covariances from the [*student grades* dataset](https://raw.githubusercontent.com/grtlr/uapca/master/data/student_grades.json).
+
+## Example
+
+```js
+// Loading the library
+import * as uapca from 'uapca';
+
+// Loading and converting the dataset
+const student_grades = (await fetch('https://raw.githubusercontent.com/grtlr/uapca/master/data/student_grades.json')).json();
+const distributions = student_grades.distributions.map(d => new uapca.MultivariateNormal(d.mean, d.cov));
+
+// Perform uncertainty-aware PCA with scaling factor k = 0.5
+const pca = uapca.UaPCA.fit(distributions, 0.5).aligned();
+
+// Project the data onto 2D
+const projected_distributions = pca.transform(distributions, 2);
+```
 
 ## Development
 
