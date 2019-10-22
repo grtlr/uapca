@@ -1,7 +1,7 @@
 # Uncertainty-aware principal component analysis
 
 ![Build Status](https://github.com/grtlr/uapca/workflows/build/badge.svg)
-![npm](https://img.shields.io/npm/v/uapca)
+![npm](https://www.npmjs.com/package/uapca)
 ![GitHub](https://img.shields.io/github/license/grtlr/uapca)
 
 This is an implementation of uncertainty-aware principal component analysis, which generalizes PCA to work on probability distributions. You can find a live Observable notebook demonstrating our method [here](https://observablehq.com/@grtlr/uncertainty-aware-pca).
