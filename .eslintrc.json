@@ -51,7 +51,7 @@
         "brace-style": ["warn", "1tbs", { "allowSingleLine": true }],
         "comma-dangle": ["warn", "always-multiline"],
         "comma-spacing": ["warn", { "before": false, "after": true }],
-        "eol-last": "warn",
+        //"eol-last": "warn",
         "func-call-spacing": ["warn", "never"],
         "function-paren-newline": ["warn", "multiline"],
         "implicit-arrow-linebreak": ["warn", "beside"],
