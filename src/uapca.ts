@@ -12,6 +12,7 @@ export interface AffineTransformation {
      * @param {Matrix} A - Linear map defined as row matrix.
      * @param {Matrix} b - Translation defined as row vector.
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     affineTransformation(A: Matrix, b: Matrix): AffineTransformation;
 
     /**
@@ -19,6 +20,7 @@ export interface AffineTransformation {
      * defined by the dimensions of the `projectionMatrix`.
      * @param {Matrix} projectionMatrix - Defined as column matrix.
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     project(projectionMatrix: Matrix): AffineTransformation;
 }
 
