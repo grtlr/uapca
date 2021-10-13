@@ -1,11 +1,11 @@
 import * as studentGrades from '../data/student_grades.json';
 
 import { describe, it } from 'mocha';
-import { Matrix, MultivariateNormal, UaPCA } from '../src/index.ts';
+import { Matrix, MultivariateNormal, UaPCA } from '../src/index';
 import { expect } from 'chai';
 
 describe('Student dataset', () => {
-    const dists = studentGrades.distributions.map(d => new MultivariateNormal(d.mean, d.cov));
+    const dists: Array<MultivariateNormal> = studentGrades.distributions.map(d => new MultivariateNormal(d.mean, d.cov));
 
     it('should load the dataset', () => {
         expect(dists.length).to.eql(6);
@@ -15,7 +15,7 @@ describe('Student dataset', () => {
 
     it('should work with UaPCA', () => {
         const pca = UaPCA.fit(dists);
-        const transformed = pca.transform(dists, 2);
+        const transformed = pca.transform(dists, 2) as Array<MultivariateNormal>;
         expect(transformed.length).to.eql(6);
         expect(transformed[0].mean().columns).to.eql(2);
     });

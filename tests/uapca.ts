@@ -1,4 +1,4 @@
-import { arithmeticMean, Matrix, MultivariateNormal, Sampler, UaPCA } from '../src/index.ts';
+import { arithmeticMean, Matrix, MultivariateNormal, Sampler, UaPCA } from '../src/index';
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
 
@@ -134,7 +134,7 @@ describe('UaPCA', () => {
         ];
         const cov = new Matrix([[1, 0.5, 0.5], [0.5, 1, 0.5], [0.5, 0.5, 1]]);
         const dists = means.map(m => new MultivariateNormal(m, cov));
-        const transformed = UaPCA.fit(dists).transform(dists, 2);
+        const transformed = UaPCA.fit(dists).transform(dists, 2)  as Array<MultivariateNormal>;
 
         expect(transformed.length).to.be.eql(4);
         expect(transformed[0].mean().columns).to.be.eql(2);

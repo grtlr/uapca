@@ -1,7 +1,7 @@
 import * as studentGrades from '../data/student_grades.json';
 
 import { describe, it } from 'mocha';
-import { FactorTraces, MultivariateNormal } from '../src/index.ts';
+import { FactorTraces, MultivariateNormal } from '../src/index';
 import { expect } from 'chai';
 
 describe('FactorTraces', () => {

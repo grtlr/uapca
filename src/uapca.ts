@@ -107,9 +107,9 @@ export function arithmeticMean(matrices: Array<Matrix>): Matrix {
 }
 
 export class UaPCA {
-    private lengths: Array<number>;
-    private vectors: Matrix; // row matrix!
-    private mean: Matrix;
+    lengths: Array<number>;
+    vectors: Matrix; // row matrix!
+    mean: Matrix;
 
     private constructor(lengths: Array<number>, vectors: Matrix, mean: Matrix) {
         this.lengths = lengths;
@@ -155,7 +155,7 @@ export class UaPCA {
 
     public projectionMatrix(nDims?: number): Matrix {
         return nDims
-            ? new  MatrixSubView(this.vectors, 0, nDims - 1, 0, this.vectors.columns - 1)
+            ? new Matrix(new MatrixSubView(this.vectors, 0, nDims - 1, 0, this.vectors.columns - 1))
             : this.vectors;
     }
 
