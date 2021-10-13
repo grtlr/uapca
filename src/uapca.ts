@@ -53,7 +53,7 @@ export class MultivariateNormal implements AffineTransformation, Distribution {
     public project(projectionMatrix: Matrix): MultivariateNormal {
         return this.affineTransformation(
             projectionMatrix,
-            Matrix.zeros(1, projectionMatrix.columns)
+            Matrix.zeros(1, projectionMatrix.columns),
         );
     }
 }
@@ -155,7 +155,7 @@ export class UaPCA {
 
     public projectionMatrix(nDims?: number): Matrix {
         return nDims
-            ? new  MatrixSubView(this.vectors, 0, nDims - 1, 0, this.vectors.columns - 1)
+            ? new Matrix(new MatrixSubView(this.vectors, 0, nDims - 1, 0, this.vectors.columns - 1))
             : this.vectors;
     }
 
@@ -166,7 +166,7 @@ export class UaPCA {
         const projMat = this.projectionMatrix(components);
         const centered = objects.map(d => d.affineTransformation(
             Matrix.eye(this.mean.columns, this.mean.columns),
-            Matrix.mul(this.mean, -1)
+            Matrix.mul(this.mean, -1),
         ));
         return centered.map(d => d.project(projMat.transpose()));
     }
