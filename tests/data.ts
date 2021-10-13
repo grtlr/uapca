@@ -15,8 +15,8 @@ describe('Student dataset', () => {
 
     it('should work with UaPCA', () => {
         const pca = UaPCA.fit(dists);
-        const transformed = pca.transform(dists, 2) as Array<MultivariateNormal>;
-        expect(transformed.length).to.eql(6);
-        expect(transformed[0].mean().columns).to.eql(2);
+        const trafo = pca.transform(dists, 2) as Array<MultivariateNormal>;
+        expect(trafo.length).to.eql(6);
+        expect(trafo[0].mean().columns).to.eql(2);
     });
 });

@@ -29,7 +29,7 @@ export class FactorTraces {
         numSamples?: number,
         min?: number,
         max?: number,
-        components?: number
+        components?: number,
     ) {
         this.N = numSamples ? numSamples : 100;
         this.min = min ? min : 0;

@@ -38,14 +38,14 @@ describe('Projection', () => {
         const result = mvn.project(projmat.transpose());
         expect(result).to.eql(new MultivariateNormal(
             Matrix.zeros(1, 2),
-            new Matrix([[1, 0.5], [0.5, 1]])
+            new Matrix([[1, 0.5], [0.5, 1]]),
         ));
     });
 
     it('non-zero mean MultivariateNormal should be projected correctly', () => {
         const mvn = new MultivariateNormal(
             [1, 42, 0],
-            [[1, 0.5, 0.5], [0.5, 1, 0.5], [0.5, 0.5, 1]]
+            [[1, 0.5, 0.5], [0.5, 1, 0.5], [0.5, 0.5, 1]],
         );
         const projmat = new Matrix([[1, 0, 0], [0, 1, 0]]);
         const result = mvn.project(projmat.transpose());

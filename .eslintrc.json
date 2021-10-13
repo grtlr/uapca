@@ -22,7 +22,7 @@
             2,
             { "args": "all", "argsIgnorePattern": "^_" }
         ],
-        "@typescript-eslint/array-type": ["warn", "generic"],
+        //"@typescript-eslint/array-type": ["warn", "generic"],
         "max-len": [
             "warn",
             {
