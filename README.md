@@ -58,14 +58,4 @@ yarn run lint-fix # tries to fix some of the warnings
 
 ## Citation
 
-To cite this work, you can use the following BibTex entry:
-
-```bibtex
-@article{UaPCA:2020,
-  author    = {Jochen Görtler and Thilo Spinner and Dirk Streeb and Daniel Weiskopf and Oliver Deussen},
-  title     = {Uncertainty-Aware Principal Component Analysis},
-  journal   = {IEEE Transactions on Visualization and Computer Graphics},
-  year      = {2020},
-  pages     = {to appear}
-}
-```
+To cite this work, you can use the BibTex entry in `CITATION.cff`.
